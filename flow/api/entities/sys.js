@@ -764,6 +764,7 @@ type PushIdentifier = {
 	identifier: string;
 	language: string;
 	lastNotificationDate: ?Date;
+	lastUsageTime: Date;
 	pushServiceType: NumberString;
 
 }

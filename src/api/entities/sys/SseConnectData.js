@@ -43,7 +43,7 @@ export const _TypeModel: TypeModel = {
 		}
 	},
 	"app": "sys",
-	"version": "52"
+	"version": "53"
 }
 
 export function createSseConnectData(values?: $Shape<$Exact<SseConnectData>>): SseConnectData {
