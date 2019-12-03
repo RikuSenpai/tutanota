@@ -19,6 +19,7 @@ import type {DesktopSseClient} from './sse/DesktopSseClient.js'
 import type {DesktopNotifier} from "./DesktopNotifier"
 import type {Socketeer} from "./Socketeer"
 import type {DesktopAlarmStorage} from "./sse/DesktopAlarmStorage"
+import {DesktopAlarmScheduler} from "./sse/DesktopAlarmScheduler"
 
 /**
  * node-side endpoint for communication between the renderer thread and the node thread
@@ -30,6 +31,7 @@ export class IPC {
 	_notifier: DesktopNotifier;
 	_sock: Socketeer;
 	_alarmStorage: DesktopAlarmStorage;
+	_alarmScheduler: DesktopAlarmScheduler;
 
 	_initialized: Array<DeferredObject<void>>;
 	_requestId: number = 0;
@@ -41,7 +43,8 @@ export class IPC {
 		sse: DesktopSseClient,
 		wm: WindowManager,
 		sock: Socketeer,
-		alarmStorage: DesktopAlarmStorage
+		alarmStorage: DesktopAlarmStorage,
+		alarmScheduler: DesktopAlarmScheduler
 	) {
 		this._conf = conf
 		this._sse = sse
@@ -49,12 +52,13 @@ export class IPC {
 		this._notifier = notifier
 		this._sock = sock
 		this._alarmStorage = alarmStorage
+		this._alarmScheduler = alarmScheduler
 
 		this._initialized = []
 		this._queue = {}
 	}
 
-	_invokeMethod(windowId: number, method: NativeRequestType, args: Array<Object>): Promise<any> {
+	_invokeMethod(windowId: number, method: NativeRequestType, args: Array<any>): Promise<any> {
 		const d = defer()
 
 		switch (method) {
@@ -201,6 +205,10 @@ export class IPC {
 				break
 			case 'getLog':
 				d.resolve(global.logger.getEntries())
+				break
+			case 'unscheduleAlarms':
+				console.log("unscheduling alarms for user", args[0])
+				d.resolve(this._alarmScheduler.unscheduleAlarms(args[0]))
 				break
 			default:
 				d.reject(new Error(`Invalid Method invocation: ${method}`))
